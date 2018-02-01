@@ -1,8 +1,17 @@
 <template>
     <div class="liste">
-        <ul>
-            <li v-for="lists in list">{{post}}</li>
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th v-for="">
+
+                    </th>
+                </tr>
+            </thead>
+            <tr>
+                <td v-for="inter in interventions">{{inter}}</td>
+            </tr>
+        </table>
     </div>
 </template>
 
@@ -12,19 +21,20 @@
     export default {
         name: 'Liste',
         props: {
-            msg: String
+            data: Array,
+            columns: Array,
+            filterKey: String
         },
-        data() {
+        data(){
             return {
-                list: [],
-                errors: []
+                interventions:[]
             }
         },
         mounted() {
             axios.get(`https://raw.githubusercontent.com/mdubourg001/datatable_vuejs/master/src/assets/MOCK_DATA.json`)
                 .then(response => {
                     // JSON responses are automatically parsed.
-                    this.list = response.data
+                    this.interventions = response.data
                 })
                 .catch(e => {
                     this.errors.push(e)
@@ -32,3 +42,9 @@
         }
     }
 </script>
+
+<style>
+    td{
+        display: inline-block;
+    }
+</style>
