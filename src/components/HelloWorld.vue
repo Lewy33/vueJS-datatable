@@ -21,11 +21,13 @@
 </template>
 
 <script>
+import * as axios from "axios";
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
-  }
+  },
 }
 </script>
 
