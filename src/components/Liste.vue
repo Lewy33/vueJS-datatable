@@ -1,23 +1,34 @@
 <template>
     <div class="liste">
-        <table>
-            <thead>
-                <tr>
-                    <th>First name</th>
-                    <th>Last name</th>
-                    <th>Titre</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="inter in interventions">
-                    <td>{{inter.first_name}}</td>
-                    <td>{{inter.last_name}}</td>
-                    <td>{{inter.titre}}</td>
-                    <td>{{inter.description}}</td>
-                </tr>
-            </tbody>
-        </table>
+        <form method="post" action="#">
+            <table>
+                <thead>
+                    <tr>
+                        <th v-for="column in columns"  @click="sortByKey(column)" :class="[
+                            column == order.by ? 'ordered':'' ,
+                            column == order.by && order.order == 'ASC' ? 'ordered-asc':
+                                column == order.by && order.order == 'DESC' ? 'ordered-desc':''
+                        ]">
+                            {{column}}
+
+                        </th>
+                        <th @click="deleteInter(index)">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="inter in dataByKeyAndOrder">
+                        <td>{{inter.id}}</td>
+                        <td>{{inter.first_name}}</td>
+                        <td>{{inter.last_name}}</td>
+                        <td>{{inter.titre}}</td>
+                        <td>{{inter.description}}</td>
+                        <td><input type="checkbox"/></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
     </div>
 </template>
 
@@ -28,25 +39,74 @@
         name: 'Liste',
         props: {
             data: Array,
-            columns: Array,
             filterKey: String
         },
         data(){
             return {
                 interventions:[],
-                columns: []
+                columns: [],
+                order: {
+                    by: 'id',
+                    order: 'ASC'
+                }
+            }
+        },
+        computed: {
+            dataByKeyAndOrder(){
+                var compare = function (filter) {
+                    return function (a,b) { //closure
+                        var a = a[filter],
+                            b = b[filter];
+
+                        if (a < b) {
+                            return -1;
+                        }else if (a > b) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    };
+                };
+
+                var filter = compare(this.order.by);
+                var data = this.interventions.sort(filter)
+                if(this.order.order === 'ASC') {
+                    return data
+                }else {
+                    return data.reverse()
+                }
+            }
+
+        },
+        methods: {
+            fetchData(){
+                axios.get(`https://raw.githubusercontent.com/mdubourg001/datatable_vuejs/master/src/assets/REDUCED_DATA.json`)
+                    .then(response => {
+                        // JSON responses are automatically parsed.
+                        this.interventions = response.data;
+                        this.columns = Object.keys(response.data[0])
+                    })
+                    .catch(e => {
+                        this.errors.push(e)
+                    })
+            },
+            deleteInter(index){
+                var data =  this.interventions
+                data.splice(index, 1)
+            },
+            sortByKey(key){
+                if(key !== this.order.by) {
+                    this.order.by = key
+                }
+                if(this.order.order === 'ASC') {
+                    this.order.order = 'DESC'
+                }else {
+                    this.order.order = 'ASC'
+                }
             }
         },
         mounted() {
-            axios.get(`https://raw.githubusercontent.com/mdubourg001/datatable_vuejs/master/src/assets/REDUCED_DATA.json`)
-                .then(response => {
-                    // JSON responses are automatically parsed.
-                    this.interventions = response.data;
-                    console.log(this.interventions)
-                })
-                .catch(e => {
-                    this.errors.push(e)
-                })
+            this.fetchData()
         },
     }
 </script>
@@ -67,11 +127,7 @@
     th {
         background-color: #3b45b9;
         color: rgba(255,255,255,1);
-        cursor: pointer;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
+        cursor: auto;
     }
 
     td {
@@ -83,33 +139,8 @@
         padding: 10px 20px;
     }
 
-    th.active {
-        color: #fff;
-    }
-
-    th.active .arrow {
-        opacity: 1;
-    }
-
-    .arrow {
-        display: inline-block;
-        vertical-align: middle;
-        width: 0;
-        height: 0;
-        margin-left: 5px;
-        opacity: 0.66;
-    }
-
-    .arrow.asc {
-        border-left: 4px solid transparent;
-        border-right: 4px solid transparent;
-        border-bottom: 4px solid #fff;
-    }
-
-    .arrow.dsc {
-        border-left: 4px solid transparent;
-        border-right: 4px solid transparent;
-        border-top: 4px solid #fff;
+    input:checked {
+        border: 1px solid blue;
     }
 
 
