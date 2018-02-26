@@ -1,8 +1,6 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <Liste msg="Welcome to Your Vue.js App"/>
-
+    <Liste></Liste>
   </div>
 </template>
 
