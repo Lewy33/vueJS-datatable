@@ -4,40 +4,41 @@
             Supprimer
         </button>
         <button @click="addRow()">Ajouter une inter</button>
-        <!--<form method="post" action="#">-->
-            <div id="nvlleInter" style="display: none">
-                <input v-model="rows.firstname" placeholder="firstname"/>
-                <input v-model="rows.lastname" placeholder="lastname"/>
-                <input v-model="rows.titre" placeholder="titre"/>
-                <textarea v-model="rows.description" placeholder="description"/>
-                <input type="submit" @click="addInter"/>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th v-for="column in columns"  @click="sortByKey(column)" :class="[
+        <button @click="editRow()">Modifier une inter</button>
+        <div id="nvlleInter" style="display: none">
+            <input v-model="rows.id"  style="display: none"/>
+            <input v-model="rows.first_name" placeholder="firstname"/>
+            <input v-model="rows.last_name" placeholder="lastname"/>
+            <input v-model="rows.titre" placeholder="titre"/>
+            <textarea v-model="rows.description" placeholder="description"/>
+            <input type="submit" @click="addInter()"/>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th v-for="column in columns"  @click="sortByKey(column)" :class="[
                             column == order.by ? 'ordered':'' ,
                             column == order.by && order.order == 'ASC' ? 'ordered-asc':
                                 column == order.by && order.order == 'DESC' ? 'ordered-desc':''
                         ]">
-                            {{column}}
+                    {{column}}
 
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(inter,index) in dataByKeyAndOrder">
-                        <td v-model="rows.id">{{inter.id}}</td>
-                        <td v-model="rows.firstname">{{inter.first_name}}</td>
-                        <td v-model="rows.lastname">{{inter.last_name}}</td>
-                        <td v-model="rows.titre">{{inter.titre}}</td>
-                        <td v-model="rows.description">{{inter.description}}</td>
-                        <td><input type="checkbox" @click="deleteMe(inter.id)" :checked="toDelete.indexOf(inter.id) > -1 " /></td>
-                    </tr>
-                </tbody>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="inter in dataByKeyAndOrder">
+                <td>{{inter.id}}</td>
+                <td>{{inter.first_name}}</td>
+                <td>{{inter.last_name}}</td>
+                <td>{{inter.titre}}</td>
+                <td>{{inter.description}}</td>
+                <td><input type="checkbox" @click="deleteMe(inter.id)" :checked="toDelete.indexOf(inter.id) > -1 " /></td>
+            </tr>
+            </tbody>
 
-            </table>
-        <!--</form>-->
+        </table>
+
     </div>
 </template>
 
@@ -48,7 +49,7 @@
         name: 'Liste',
         props: {
             data: Array,
-            filterKey: String
+            filterKey: String,
         },
         data() {
             return {
@@ -60,11 +61,9 @@
 
                 },
                 toDelete: [],
-                rows: {
-                    id:'', firstname:'',lastname:'',titre :'',description:''
-                }
-                }
-            },
+                rows:[],
+            }
+        },
         computed: {
             dataByKeyAndOrder(){
                 var compare = function (filter) {
@@ -83,7 +82,7 @@
                 };
 
                 var filter = compare(this.order.by);
-                var data = this.interventions.sort(filter)
+                var data = this.interventions.sort(filter);
                 if(this.order.order === 'ASC') {
                     return data
                 }else {
@@ -93,11 +92,10 @@
 
         },
         methods: {
-            fetchData(){
+            fetchData() {
                 axios.get(`https://raw.githubusercontent.com/mdubourg001/datatable_vuejs/master/src/assets/REDUCED_DATA.json`)
                     .then(response => {
                         // JSON responses are automatically parsed.
-                        console.log(response.data)
                         this.interventions = response.data;
                         this.columns = Object.keys(response.data[0])
                     })
@@ -105,27 +103,30 @@
                         this.errors.push(e)
                     })
             },
-            deleteInter(index){
-                console.log(this.toDelete)
-                for(let i = 0 ; i<this.toDelete.length; i++){
-                    for(let j=0; j<this.interventions.length; j++){
-                        if(this.interventions[j].id == this.toDelete[i]){
+            deleteInter(index) {
+                for (let i = 0; i < this.toDelete.length; i++) {
+                    for (let j = 0; j < this.interventions.length; j++) {
+                        if (this.interventions[j].id == this.toDelete[i]) {
                             this.interventions.splice(j, 1)
                         }
                     }
                 }
-                this.toDelete = []
+                this.toDelete = [];
             },
-            deleteMe(id){
-                this.toDelete.push(id)
+            deleteMe(id) {
+                if (this.toDelete.includes(id)) {
+                    this.toDelete.splice(this.toDelete.indexOf(id), 1)
+                } else {
+                   this.toDelete.push(id)
+                }
             },
-            sortByKey(key){
-                if(key !== this.order.by) {
+            sortByKey(key) {
+                if (key !== this.order.by) {
                     this.order.by = key
                 }
-                if(this.order.order === 'ASC') {
+                if (this.order.order === 'ASC') {
                     this.order.order = 'DESC'
-                }else {
+                } else {
                     this.order.order = 'ASC'
                 }
             },
@@ -137,8 +138,20 @@
                     divAdd.style.display = 'none';
                 }
             },
-            addInter(){
-                this.rows.push()
+            editRow() {
+
+            },
+            addInter() {
+                var start_index = this.interventions.length;
+                var number_of_elements_to_remove = 0;
+                for (let i = 0; i<this.interventions.length; i++) {
+                    this.rows.id = i;
+                }
+                var inter = Object.assign({}, this.rows);
+                this.interventions.splice(start_index, number_of_elements_to_remove, inter);
+            },
+            editInter(){
+
             }
         },
         mounted() {
@@ -173,10 +186,6 @@
     th, td {
         min-width: 120px;
         padding: 10px 20px;
-    }
-
-    input:checked {
-        border: 1px solid blue;
     }
 
 
