@@ -27,18 +27,19 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="inter in dataByKeyAndOrder">
-                <td>{{inter.id}}</td>
-                <td>{{inter.first_name}}</td>
-                <td>{{inter.last_name}}</td>
-                <td>{{inter.titre}}</td>
-                <td>{{inter.description}}</td>
-                <td><input type="checkbox" @click="deleteMe(inter.id)" :checked="toDelete.indexOf(inter.id) > -1 " /></td>
-            </tr>
+                <tr v-for="inter in dataByKeyAndOrder">
+                    <td>{{inter.id}}</td>
+                    <td>{{inter.first_name}}</td>
+                    <td>{{inter.last_name}}</td>
+                    <td>{{inter.titre}}</td>
+                    <td>{{inter.description}}</td>
+                    <td><input type="checkbox" @click="deleteMe(inter.id)" :checked="toDelete.indexOf(inter.id) > -1 " /></td>
+                </tr>
             </tbody>
-
         </table>
-
+        <ul>
+            <li v-for="pageNumber in pages" ><a href="#"></a></li>
+        </ul>
     </div>
 </template>
 
@@ -62,6 +63,7 @@
                 },
                 toDelete: [],
                 rows:[],
+                pages: 2,
             }
         },
         computed: {
@@ -88,6 +90,16 @@
                 }else {
                     return data.reverse()
                 }
+            },
+            setPage(){
+                var data = this.interventions
+                var pages = this.interventions.length
+                console.log(data.length)
+            },
+            totalPages(){
+                console.log(data.length)
+                var data = this.interventions
+                var pages = this.interventions.length
             }
 
         },
@@ -186,6 +198,10 @@
     th, td {
         min-width: 120px;
         padding: 10px 20px;
+    }
+    li{
+        display: inline-block;
+        margin-right: 10px;
     }
 
 
