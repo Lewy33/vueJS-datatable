@@ -11,7 +11,7 @@
             <input v-model="rows.last_name" placeholder="lastname"/>
             <input v-model="rows.titre" placeholder="titre"/>
             <textarea v-model="rows.description" placeholder="description"/>
-            <input type="submit" @click="addInter()"/>
+            <button type="submit" @click="addInter()">Valider</button>
         </div>
         <table>
             <thead>
@@ -24,6 +24,7 @@
                     {{column}}
 
                 </th>
+                <th>seléction</th>
             </tr>
             </thead>
             <tbody>
@@ -37,9 +38,6 @@
                 </tr>
             </tbody>
         </table>
-        <ul>
-            <li v-for="pageNumber in pages" ><a href="#"></a></li>
-        </ul>
     </div>
 </template>
 
@@ -63,14 +61,14 @@
                 },
                 toDelete: [],
                 rows:[],
-                pages: 2,
+                pages: 10,
             }
         },
         computed: {
             dataByKeyAndOrder(){
-                var compare = function (filter) {
+                let compare = function (filter) {
                     return function (a,b) { //closure
-                        var a = a[filter],
+                            a = a[filter];
                             b = b[filter];
 
                         if (a < b) {
@@ -83,8 +81,9 @@
                     };
                 };
 
-                var filter = compare(this.order.by);
-                var data = this.interventions.sort(filter);
+                let data = this.interventions;
+                let filter = compare(this.order.by);
+                data.sort(filter);
                 if(this.order.order === 'ASC') {
                     return data
                 }else {
@@ -92,14 +91,15 @@
                 }
             },
             setPage(){
-                var data = this.interventions
-                var pages = this.interventions.length
+                let pages = 10;
+                let data = this.interventions;
                 console.log(data.length)
+                data = data / pages;
+                return pages
+
             },
             totalPages(){
-                console.log(data.length)
-                var data = this.interventions
-                var pages = this.interventions.length
+
             }
 
         },
@@ -143,7 +143,7 @@
                 }
             },
             addRow() {
-                var divAdd = document.getElementById('nvlleInter')
+                let divAdd = document.getElementById('nvlleInter')
                 if (divAdd.style.display == 'none') {
                     divAdd.style.display = 'block';
                 } else {
@@ -154,12 +154,12 @@
 
             },
             addInter() {
-                var start_index = this.interventions.length;
-                var number_of_elements_to_remove = 0;
+                let start_index = this.interventions.length;
+                let number_of_elements_to_remove = 0;
                 for (let i = 0; i<this.interventions.length; i++) {
                     this.rows.id = i;
                 }
-                var inter = Object.assign({}, this.rows);
+                let inter = Object.assign({}, this.rows);
                 this.interventions.splice(start_index, number_of_elements_to_remove, inter);
             },
             editInter(){
@@ -171,38 +171,3 @@
         },
     }
 </script>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        color: #444;
-    }
-
-    table {
-        border: 2px solid #3b45b9;
-        border-radius: 3px;
-        background-color: #fff;
-    }
-
-    th {
-        background-color: #3b45b9;
-        color: rgba(255,255,255,1);
-        cursor: auto;
-    }
-
-    td {
-        background-color: #f9f9f9;
-    }
-
-    th, td {
-        min-width: 120px;
-        padding: 10px 20px;
-    }
-    li{
-        display: inline-block;
-        margin-right: 10px;
-    }
-
-
-</style>
